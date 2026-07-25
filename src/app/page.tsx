@@ -39,14 +39,14 @@ export default function HomePage() {
         <div className="hidden md:flex flex-1 min-w-0">
           <SplitPane
             direction="horizontal"
-            sizes={[28, 72]}
-            minSizes={[280, 400]}
+            sizes={[30, 70]}
+            minSizes={[300, 420]}
           >
             {/* Chat */}
             <div className="h-full min-w-0">
               <ChatPanel onOpenSettings={() => setSettingsOpen(true)} />
             </div>
-            {/* Right side: code + preview vertical split */}
+            {/* Right: code + preview */}
             <SplitPane
               direction="vertical"
               sizes={[55, 45]}

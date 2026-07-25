@@ -15,9 +15,8 @@ export function SplitPane({
   direction?: Direction;
   children: ReactNode[];
   className?: string;
-  /** Initial size percentages per child (e.g. [30, 70]) */
   sizes?: number[];
-  minSizes?: number[]; // px
+  minSizes?: number[];
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const paneRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -29,7 +28,8 @@ export function SplitPane({
     return new Array(count).fill(100 / count);
   });
 
-  // Reset size tracking when child count changes
+  const [dragging, setDragging] = useState(false);
+
   useEffect(() => {
     setSizes((prev) => {
       if (prev.length === count) return prev;
@@ -40,7 +40,7 @@ export function SplitPane({
   const dragState = useRef<{
     idx: number;
     startPos: number;
-    startSizes: number[]; // in pixels
+    startSizes: number[];
     totalPx: number;
   } | null>(null);
 
@@ -62,6 +62,7 @@ export function SplitPane({
         startSizes,
         totalPx,
       };
+      setDragging(true);
       document.body.style.cursor = direction === 'horizontal' ? 'col-resize' : 'row-resize';
       document.body.style.userSelect = 'none';
     },
@@ -79,15 +80,11 @@ export function SplitPane({
       const newB = d.startSizes[d.idx + 1] - delta;
       if (newA < minA || newB < minB) return;
 
-      // Compute new percentages for all panes — only idx and idx+1 change
       const newPctPanes = paneRefs.current.map((el, i) => {
-        const r = el?.getBoundingClientRect();
-        const px =
-          i === d.idx ? newA : i === d.idx + 1 ? newB : d.startSizes[i];
+        const px = i === d.idx ? newA : i === d.idx + 1 ? newB : d.startSizes[i];
         return (px / d.totalPx) * 100;
       });
 
-      // Apply directly to DOM for smoothness; state updates after drag
       newPctPanes.forEach((pct, i) => {
         const el = paneRefs.current[i];
         if (el) {
@@ -99,6 +96,7 @@ export function SplitPane({
     }
     function onUp() {
       dragState.current = null;
+      setDragging(false);
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
     }
@@ -118,11 +116,9 @@ export function SplitPane({
       className={cn('flex w-full h-full', isH ? 'flex-row' : 'flex-col', className)}
     >
       {kids.map((child, i) => (
-        <Fragment key={`pane-group-${i}`}>
+        <Fragment key={`pane-${i}`}>
           <div
-            ref={(el) => {
-              paneRefs.current[i] = el;
-            }}
+            ref={(el) => { paneRefs.current[i] = el; }}
             className="min-w-0 min-h-0 overflow-hidden relative"
             style={
               isH
@@ -136,12 +132,14 @@ export function SplitPane({
             <div
               onMouseDown={(e) => onMouseDown(i, e)}
               className={cn(
-                'flex-shrink-0 z-10 transition-colors hover:!bg-alizen-accent',
+                'flex-shrink-0 z-10 transition-colors duration-150',
                 isH
-                  ? 'w-[3px] cursor-col-resize'
-                  : 'h-[3px] cursor-row-resize'
+                  ? 'w-px cursor-col-resize hover:w-[3px]'
+                  : 'h-px cursor-row-resize hover:h-[3px]',
+                dragging
+                  ? 'bg-alizen-accent/50'
+                  : 'bg-alizen-border hover:bg-alizen-accent/30'
               )}
-              style={{ background: '#232336' }}
             />
           )}
         </Fragment>

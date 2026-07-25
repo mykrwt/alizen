@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Settings as SettingsIcon,
   Download,
   Github,
-  ExternalLink,
   Pencil,
   Check,
+  ChevronDown,
 } from 'lucide-react';
 import { useAppStore, useActiveProject } from '@/store';
 import { exportProjectAsZip, triggerDownload } from '@/lib/exporter';
@@ -22,7 +22,14 @@ export function TopBar({ onOpenSettings }: Props) {
   const renameProject = useAppStore((s) => s.renameProject);
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(project?.name ?? '');
-  const [showShare, setShowShare] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [editing]);
 
   async function exportZip() {
     if (!project) return;
@@ -31,21 +38,19 @@ export function TopBar({ onOpenSettings }: Props) {
   }
 
   function deployToVercel() {
-    // Without a server there's no direct "deploy THIS project" URL, but we
-    // can open Vercel's new-project page; the user can drag-and-drop the ZIP.
     window.open('https://vercel.com/new', '_blank');
   }
 
   if (!project) return null;
 
   return (
-    <header className="h-14 flex-shrink-0 border-b border-alizen-border bg-alizen-panel flex items-center px-4 gap-3 relative z-20">
-      {/* Project name */}
+    <header className="h-11 flex-shrink-0 border-b border-alizen-border bg-alizen-panel/80 backdrop-blur-sm flex items-center px-3 gap-2 relative z-20">
+      {/* Left: project name */}
       <div className="flex items-center gap-2 flex-1 min-w-0">
         {editing ? (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <input
-              autoFocus
+              ref={inputRef}
               value={name}
               onChange={(e) => setName(e.target.value)}
               onBlur={() => {
@@ -62,17 +67,8 @@ export function TopBar({ onOpenSettings }: Props) {
                   setEditing(false);
                 }
               }}
-              className="bg-alizen-surface border border-alizen-accent rounded px-2 py-1 text-sm outline-none w-60"
+              className="bg-alizen-surface border border-white/[0.1] rounded-md px-2 py-0.5 text-[13px] font-medium outline-none w-56 focus:border-alizen-accent/50 transition-colors"
             />
-            <button
-              onClick={() => {
-                if (name.trim()) renameProject(project.id, name.trim());
-                setEditing(false);
-              }}
-              className="text-alizen-accent hover:text-white"
-            >
-              <Check size={14} />
-            </button>
           </div>
         ) : (
           <button
@@ -80,71 +76,62 @@ export function TopBar({ onOpenSettings }: Props) {
               setName(project.name);
               setEditing(true);
             }}
-            className="flex items-center gap-1.5 text-sm font-semibold hover:text-alizen-accent transition-colors group"
+            className="flex items-center gap-1 text-[13px] font-medium text-alizen-dim hover:text-alizen-text transition-colors group"
           >
             <span className="truncate">{project.name}</span>
-            <Pencil size={12} className="opacity-0 group-hover:opacity-100 transition-opacity text-alizen-muted" />
+            <Pencil size={11} className="opacity-0 group-hover:opacity-60 transition-opacity text-alizen-muted" />
           </button>
         )}
-        <span className="text-xs text-alizen-muted">·</span>
-        <span className="text-xs text-alizen-muted hidden sm:inline">
+
+        <div className="w-px h-3.5 bg-white/[0.06] hidden sm:block" />
+
+        <span className="text-2xs text-alizen-muted tabular-nums hidden sm:inline">
           {project.files.length} file{project.files.length !== 1 ? 's' : ''}
         </span>
       </div>
 
-      {/* Right actions */}
-      <div className="flex items-center gap-2">
-        <div className="relative">
-          <button
-            onClick={exportZip}
-            className="btn-ghost text-xs h-9 hidden sm:inline-flex"
-            title="Download as ZIP"
-          >
-            <Download size={14} /> Export
-          </button>
-        </div>
+      {/* Right: actions */}
+      <div className="flex items-center gap-1">
+        <button
+          onClick={exportZip}
+          className="btn-ghost h-7 px-2 text-xs hidden sm:inline-flex"
+          title="Download as ZIP"
+        >
+          <Download size={13} />
+          <span className="ml-0.5">Export</span>
+        </button>
+
         <button
           onClick={deployToVercel}
-          className="btn-primary text-xs h-9"
-          title="Download the ZIP and drop it at vercel.com/new to deploy"
+          className="btn-primary h-7 px-2.5 text-xs"
+          title="Deploy to Vercel"
         >
-          <svg width="14" height="14" viewBox="0 0 76 65" fill="currentColor">
-            <path d="M37.5274 0L75.0548 65H0L37.5274 0Z"/>
+          <svg width="12" height="12" viewBox="0 0 76 65" fill="currentColor">
+            <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" />
           </svg>
-          Deploy
+          <span className="ml-0.5">Deploy</span>
         </button>
+
+        <div className="w-px h-3.5 bg-white/[0.06] mx-0.5 hidden sm:block" />
+
         <button
           onClick={onOpenSettings}
-          className="btn-ghost text-xs h-9 w-9 p-0"
+          className="btn-ghost h-7 w-7 p-0"
           title="Settings"
         >
-          <SettingsIcon size={15} />
+          <SettingsIcon size={14} />
         </button>
+
         <a
           href="https://github.com/mykrwt/alizen"
           target="_blank"
           rel="noreferrer noopener"
-          className="btn-ghost text-xs h-9 w-9 p-0 hidden sm:inline-flex"
+          className="btn-ghost h-7 w-7 p-0 hidden sm:inline-flex"
           title="GitHub"
         >
-          <Github size={15} />
+          <Github size={14} />
         </a>
       </div>
-
-      {showShare && (
-        <div className="absolute right-4 top-14 w-72 bg-alizen-panel border border-alizen-border rounded-lg p-3 shadow-2xl">
-          <div className="text-xs font-semibold mb-2">Deploy / Share</div>
-          <button
-            onClick={deployToVercel}
-            className="w-full btn-primary text-xs mb-2"
-          >
-            <ExternalLink size={13} /> Deploy to Vercel
-          </button>
-          <button onClick={exportZip} className="w-full btn-ghost text-xs">
-            <Download size={13} /> Download ZIP
-          </button>
-        </div>
-      )}
     </header>
   );
 }

@@ -23,7 +23,6 @@ export function PreviewPanel() {
   const html = useMemo(() => {
     if (!project) return '';
     return buildPreviewHTML(project.files, project.entryFile);
-    // refreshKey forces re-render when user clicks reload
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project?.files, project?.entryFile, refreshKey]);
 
@@ -41,7 +40,6 @@ export function PreviewPanel() {
     return () => window.removeEventListener('message', onMsg);
   }, []);
 
-  // Open preview in new tab
   function openInNewTab() {
     if (!html) return;
     const blob = new Blob([html], { type: 'text/html' });
@@ -54,52 +52,57 @@ export function PreviewPanel() {
   return (
     <div className="flex flex-col h-full bg-alizen-bg">
       {/* Toolbar */}
-      <div className="h-12 flex-shrink-0 flex items-center px-3 border-b border-alizen-border bg-alizen-panel gap-2">
-        <Eye size={14} className="text-alizen-accent" />
-        <span className="text-xs font-semibold flex-1">Live Preview</span>
-        <div className="flex items-center gap-1 bg-alizen-surface rounded-md p-0.5 border border-alizen-border">
+      <div className="h-9 flex-shrink-0 flex items-center px-2.5 border-b border-alizen-border bg-alizen-panel/60 backdrop-blur-sm gap-1.5">
+        <Eye size={13} strokeWidth={1.5} className="text-alizen-accent/70" />
+        <span className="text-xs font-medium text-alizen-subtle flex-1">Preview</span>
+
+        {/* Device switcher */}
+        <div className="flex items-center gap-px bg-white/[0.02] rounded-md p-px border border-white/[0.04]">
           <DeviceBtn active={device === 'desktop'} onClick={() => setDevice('desktop')} title="Desktop">
-            <Monitor size={13} />
+            <Monitor size={12} strokeWidth={1.5} />
           </DeviceBtn>
           <DeviceBtn active={device === 'tablet'} onClick={() => setDevice('tablet')} title="Tablet">
-            <Tablet size={13} />
+            <Tablet size={12} strokeWidth={1.5} />
           </DeviceBtn>
           <DeviceBtn active={device === 'mobile'} onClick={() => setDevice('mobile')} title="Mobile">
-            <Smartphone size={13} />
+            <Smartphone size={12} strokeWidth={1.5} />
           </DeviceBtn>
         </div>
+
         <button
           onClick={() => {
             setRefreshKey((k) => k + 1);
             setPreviewError(null);
           }}
-          className="btn-ghost text-xs h-8 px-2"
+          className="btn-ghost h-6 w-6 p-0"
           title="Reload preview"
         >
-          <RefreshCw size={13} />
+          <RefreshCw size={12} strokeWidth={1.5} />
         </button>
         <button
           onClick={openInNewTab}
-          className="btn-ghost text-xs h-8 px-2"
+          className="btn-ghost h-6 w-6 p-0"
           title="Open in new tab"
         >
-          <ExternalLink size={13} />
+          <ExternalLink size={12} strokeWidth={1.5} />
         </button>
       </div>
 
       {/* Preview area */}
-      <div className="flex-1 overflow-auto bg-[#07070c] p-4 flex items-start justify-center">
+      <div className="flex-1 overflow-auto p-3 flex items-start justify-center bg-[#08080a]">
         <div
-          className="relative bg-white rounded-lg shadow-2xl overflow-hidden transition-all duration-300"
+          className="relative bg-white rounded-lg overflow-hidden transition-all duration-300 ease-out"
           style={{
             width: DEVICE_WIDTHS[device],
             height: device === 'desktop' ? '100%' : '720px',
             maxWidth: '100%',
+            boxShadow: '0 0 0 1px rgba(255,255,255,0.04), 0 8px 40px -8px rgba(0,0,0,0.6)',
           }}
         >
+          {/* Device frame — notch */}
           {device !== 'desktop' && (
-            <div className="absolute top-0 left-0 right-0 h-6 bg-black/90 flex items-center justify-center z-10">
-              <div className="w-16 h-1.5 bg-gray-700 rounded-full" />
+            <div className="absolute top-0 left-0 right-0 h-7 bg-[#1a1a1e] flex items-center justify-center z-10">
+              <div className="w-14 h-1 bg-[#333] rounded-full" />
             </div>
           )}
           <iframe
@@ -108,15 +111,16 @@ export function PreviewPanel() {
             title="preview"
             srcDoc={html}
             sandbox="allow-scripts allow-forms allow-modals allow-popups allow-same-origin"
-            className={cn('preview-frame', device !== 'desktop' && 'mt-6')}
-            style={{ height: device === 'desktop' ? '100%' : 'calc(100% - 24px)' }}
+            className={cn('preview-frame', device !== 'desktop' && 'mt-7')}
+            style={{ height: device === 'desktop' ? '100%' : 'calc(100% - 28px)' }}
           />
         </div>
       </div>
 
+      {/* Error bar */}
       {previewError && (
-        <div className="flex-shrink-0 bg-alizen-error/10 border-t border-alizen-error/30 text-alizen-error px-4 py-2 text-xs font-mono">
-          <strong>Preview error:</strong> {previewError}
+        <div className="flex-shrink-0 bg-red-500/[0.06] border-t border-red-500/20 text-red-400 px-3 py-1.5 text-xs font-mono">
+          <strong className="font-semibold">Error:</strong> {previewError}
         </div>
       )}
     </div>
@@ -139,8 +143,10 @@ function DeviceBtn({
       onClick={onClick}
       title={title}
       className={cn(
-        'p-1.5 rounded transition-colors',
-        active ? 'bg-alizen-accent text-white' : 'text-alizen-muted hover:text-alizen-text'
+        'p-1 rounded-[4px] transition-all duration-100',
+        active
+          ? 'bg-white/[0.1] text-alizen-text shadow-sm'
+          : 'text-alizen-muted/50 hover:text-alizen-muted'
       )}
     >
       {children}
