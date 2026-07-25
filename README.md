@@ -68,8 +68,32 @@ This repo is pre-wired for AI coding agents:
 | `pnpm test:e2e` | Playwright smoke tests (starts dev server) |
 | `graphify update .` | Refresh the codebase memory graph (free, AST-only) |
 
+## ▲ Deploying to Vercel
+This is a **pnpm + Turborepo monorepo**; the deployable app is `apps/web`. Vercel must be told
+where the Next.js output lives or it falls back to looking for a static `public/` directory and
+fails with `No Output Directory named "public" found after the Build completed`.
+
+**Recommended (Vercel Project → Settings → Build & Deployment):**
+
+| Setting | Value |
+|---|---|
+| Framework Preset | Next.js |
+| **Root Directory** | `apps/web` |
+| Include files outside the Root Directory | ✅ enabled (needed for the workspace root + lockfile) |
+| Build Command | leave default (`next build`), or `cd ../.. && pnpm turbo run build --filter=web` |
+| Output Directory | leave default (`.next`) |
+| Install Command | leave default (Vercel detects pnpm) |
+
+With Root Directory set to `apps/web`, Vercel reads `apps/web/vercel.json` and the root
+`vercel.json` is ignored — both files carry the same COOP/COEP headers so the config is
+identical either way.
+
+**Fallback (Root Directory left at the repo root):** the root `vercel.json` pins
+`framework: nextjs`, the Turborepo build command, and `outputDirectory: apps/web/.next` so the
+build is discoverable from the root. Setting the Root Directory is still the more reliable path.
+
 ## ⚙️ Notes
-- **WebContainers** require cross-origin isolation → COOP/COEP headers are set in `vercel.json` + `next.config.ts`.
+- **WebContainers** require cross-origin isolation → COOP/COEP headers are set in `vercel.json`, `apps/web/vercel.json`, and `next.config.ts`.
 - **No `.env` needed** — keys/tokens are entered in-app (Settings) and stored in the browser.
 
 ## 📄 License
