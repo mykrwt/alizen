@@ -1,24 +1,39 @@
 {
-  "name": "alize",
-  "private": true,
+  "name": "alizen",
   "version": "0.1.0",
-  "description": "Alize — a free, in-browser AI app builder. BYOK, local-first, no login, no shutdown.",
-  "license": "MIT",
-  "packageManager": "pnpm@9.15.0",
-  "engines": { "node": ">=20" },
+  "private": true,
+  "description": "Alizen — Build full-stack web apps with AI. Free forever. Bring your own API keys.",
   "scripts": {
-    "dev": "turbo run dev",
-    "build": "turbo run build",
-    "typecheck": "turbo run typecheck",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
-    "format": "biome format --write .",
-    "test": "turbo run test",
-    "test:e2e": "turbo run test:e2e"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "jszip": "^3.10.1",
+    "lucide-react": "^0.453.0",
+    "nanoid": "^5.0.7",
+    "next": "14.2.15",
+    "prismjs": "^1.29.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.5.4",
+    "zustand": "^4.5.5"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "turbo": "^2.3.3",
-    "typescript": "^5.7.2"
+    "@types/node": "^20.16.11",
+    "@types/prismjs": "^1.26.4",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "14.2.15",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
