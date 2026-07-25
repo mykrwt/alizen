@@ -1,0 +1,30 @@
+{
+  "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/specification/main/schemas/mcp.schema.json",
+  "$comment": "Project-scoped MCP servers for the AI assistants building Alize (Claude Code reads this file automatically). All packages validated to resolve on npm. Optional servers (magic, github) need env vars exported BEFORE you launch the client — see docs/agent-tooling.md.",
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"],
+      "$comment": "Up-to-date docs for Next.js, React, Tailwind, shadcn, Vercel AI SDK. Always prefer this over guessing APIs."
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"],
+      "$comment": "Drive the generated app preview / E2E tests in a real browser."
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking@latest"]
+    },
+    "magic": {
+      "command": "npx",
+      "args": ["-y", "@21st-dev/magic@latest"],
+      "$comment": "REQUIRES env: export TWENTYFIRST_API_KEY=... (free key from 21st.dev). Generates polished UI components. Optional."
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github@latest"],
+      "$comment": "REQUIRES env: export GITHUB_PERSONAL_ACCESS_TOKEN=$(gh auth token). PRs, issues, checks. Optional."
+    }
+  }
+}

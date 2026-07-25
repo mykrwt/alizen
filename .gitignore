@@ -1,0 +1,35 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.*
+
+# build / caches
+.next/
+out/
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+
+# env / secrets
+.env
+.env.local
+.env.*.local
+*.pem
+
+# graphify memory (regenerable: `graphify .` or `graphify update .`)
+# uncomment the next line to keep it out of git; leave commented to SHARE memory across machines
+graphify-out/
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# misc
+*.log
+npm-debug.log*
+coverage/
+.vercel
