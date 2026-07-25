@@ -7,8 +7,8 @@ import {
   Sparkles,
   User,
   Bot,
-  Zap,
   FileCode,
+  ArrowUp,
 } from 'lucide-react';
 import { useAppStore, useActiveProject } from '@/store';
 import { renderMarkdownLite, cn } from '@/lib/utils';
@@ -41,18 +41,16 @@ export function ChatPanel({ onOpenSettings }: { onOpenSettings: () => void }) {
 
   const apiKey = settings.apiKeys[settings.providerId] ?? '';
 
-  // Auto-scroll to bottom when messages / streaming updates
   useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [project?.messages.length, streamingContent]);
 
-  // Auto-grow textarea
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 200) + 'px';
+    el.style.height = Math.min(el.scrollHeight, 160) + 'px';
   }, [input]);
 
   const hasMessages = (project?.messages.length ?? 0) > 0;
@@ -82,7 +80,6 @@ export function ChatPanel({ onOpenSettings }: { onOpenSettings: () => void }) {
 
     try {
       const messagesForLLM = [...project.messages, userMsg];
-      // Read optional custom base URL (used by the "custom" provider for Ollama, etc.)
       const customBaseURL =
         settings.providerId === 'custom'
           ? (settings.selectedModels as any).__custom_base || undefined
@@ -101,12 +98,10 @@ export function ChatPanel({ onOpenSettings }: { onOpenSettings: () => void }) {
         signal: controller.signal,
         onDelta: (delta) => appendStreaming(delta),
       });
-      // After streaming completes, parse files from final content
       const finalContent = useAppStore.getState().streamingContent;
       applyAssistantResponse(finalContent);
     } catch (err: any) {
       if (err.name === 'AbortError') {
-        // Treat partial as final
         const partial = useAppStore.getState().streamingContent;
         if (partial.trim()) {
           applyAssistantResponse(partial + '\n\n*[stopped]*');
@@ -114,7 +109,6 @@ export function ChatPanel({ onOpenSettings }: { onOpenSettings: () => void }) {
           setStreaming(false, '');
         }
       } else {
-        // Show error as assistant message
         setStreaming(false, '');
         addMessage({
           id: uid('m_'),
@@ -140,19 +134,19 @@ export function ChatPanel({ onOpenSettings }: { onOpenSettings: () => void }) {
   return (
     <div className="flex flex-col h-full bg-alizen-bg">
       {/* Header */}
-      <div className="h-12 flex-shrink-0 flex items-center justify-between px-4 border-b border-alizen-border bg-alizen-panel">
-        <div className="flex items-center gap-2">
-          <Sparkles size={15} className="text-alizen-accent" />
-          <span className="text-xs font-semibold">Chat</span>
+      <div className="h-11 flex-shrink-0 flex items-center justify-between px-3 border-b border-alizen-border bg-alizen-panel/60 backdrop-blur-sm">
+        <div className="flex items-center gap-1.5">
+          <Sparkles size={13} strokeWidth={1.5} className="text-alizen-accent" />
+          <span className="text-xs font-medium text-alizen-subtle">Chat</span>
         </div>
         {hasMessages && (
-          <div className="text-[10px] text-alizen-muted">
-            {project!.messages.length} message{project!.messages.length !== 1 ? 's' : ''}
-          </div>
+          <span className="text-2xs text-alizen-muted/60 tabular-nums">
+            {project!.messages.length}
+          </span>
         )}
       </div>
 
-      {/* Messages area */}
+      {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
         {!hasMessages ? (
           <EmptyState
@@ -161,9 +155,9 @@ export function ChatPanel({ onOpenSettings }: { onOpenSettings: () => void }) {
             onOpenSettings={onOpenSettings}
           />
         ) : (
-          <div className="p-4 space-y-4">
-            {project!.messages.map((msg) => (
-              <MessageBubble key={msg.id} msg={msg} />
+          <div className="p-3 space-y-3">
+            {project!.messages.map((msg, i) => (
+              <MessageBubble key={msg.id} msg={msg} index={i} />
             ))}
             {isStreaming && streamingContent && (
               <MessageBubble
@@ -174,6 +168,7 @@ export function ChatPanel({ onOpenSettings }: { onOpenSettings: () => void }) {
                   content: streamingContent,
                   createdAt: Date.now(),
                 }}
+                index={project!.messages.length}
               />
             )}
           </div>
@@ -181,9 +176,9 @@ export function ChatPanel({ onOpenSettings }: { onOpenSettings: () => void }) {
       </div>
 
       {/* Composer */}
-      <div className="flex-shrink-0 p-3 border-t border-alizen-border bg-alizen-panel">
-        <form onSubmit={onFormSubmit} className="relative">
-          <div className="flex items-end gap-2 bg-alizen-surface border border-alizen-border rounded-xl focus-within:border-alizen-accent focus-within:ring-1 focus-within:ring-alizen-accent/30 transition-all">
+      <div className="flex-shrink-0 p-3 border-t border-alizen-border bg-alizen-panel/60 backdrop-blur-sm">
+        <form onSubmit={onFormSubmit}>
+          <div className="flex items-end gap-2 bg-alizen-surface border border-alizen-border rounded-lg focus-within:border-white/[0.12] transition-all duration-150">
             <textarea
               ref={textareaRef}
               value={input}
@@ -197,45 +192,54 @@ export function ChatPanel({ onOpenSettings }: { onOpenSettings: () => void }) {
               placeholder={
                 apiKey
                   ? 'Describe the app you want to build…'
-                  : 'Add your API key in Settings to start building…'
+                  : 'Add your API key in Settings to start…'
               }
               rows={1}
-              className="flex-1 bg-transparent resize-none outline-none px-4 py-3 text-sm placeholder:text-alizen-muted"
+              className="flex-1 bg-transparent resize-none outline-none px-3 py-2.5 text-[13px] placeholder:text-alizen-muted/50 min-h-[38px]"
               disabled={isStreaming}
             />
-            <div className="p-2">
+            <div className="p-1.5">
               {isStreaming ? (
                 <button
                   type="button"
                   onClick={handleStop}
-                  className="btn bg-alizen-error/80 hover:bg-alizen-error text-white h-9 w-9 p-0"
+                  className="flex items-center justify-center w-7 h-7 rounded-md bg-red-500/15 hover:bg-red-500/25 text-red-400 transition-colors"
                   title="Stop generating"
                 >
-                  <Square size={14} />
+                  <Square size={12} fill="currentColor" />
                 </button>
               ) : (
                 <button
                   type="submit"
                   disabled={!input.trim()}
                   className={cn(
-                    'btn-primary h-9 w-9 p-0',
-                    !input.trim() && 'opacity-40 cursor-not-allowed'
+                    'flex items-center justify-center w-7 h-7 rounded-md transition-all duration-150',
+                    input.trim()
+                      ? 'bg-alizen-accent hover:bg-alizen-accent-hover text-white shadow-glow-sm'
+                      : 'bg-white/[0.04] text-alizen-muted/40 cursor-not-allowed'
                   )}
                   title="Send (Enter)"
                 >
-                  <Send size={14} />
+                  <ArrowUp size={14} strokeWidth={2} />
                 </button>
               )}
             </div>
           </div>
-          <div className="flex items-center justify-between mt-2 px-1">
-            <div className="text-[10px] text-alizen-muted">
-              <kbd>Enter</kbd> send · <kbd>Shift+Enter</kbd> newline
-            </div>
-            <div className="text-[10px] text-alizen-muted flex items-center gap-1">
-              <Zap size={10} className="text-alizen-accent" />
-              {isStreaming ? 'Generating…' : 'Ready'}
-            </div>
+          <div className="flex items-center justify-between mt-1.5 px-0.5">
+            <span className="text-2xs text-alizen-muted/40">
+              <kbd className="kbd mr-0.5">↵</kbd> send
+              <span className="mx-1 opacity-40">·</span>
+              <kbd className="kbd mr-0.5">⇧↵</kbd> newline
+            </span>
+            <span className={cn(
+              'text-2xs flex items-center gap-1',
+              isStreaming ? 'text-alizen-accent' : 'text-alizen-muted/40'
+            )}>
+              {isStreaming && (
+                <span className="w-1.5 h-1.5 rounded-full bg-alizen-accent animate-pulse-dot" />
+              )}
+              {isStreaming ? 'Generating' : 'Ready'}
+            </span>
           </div>
         </form>
       </div>
@@ -253,36 +257,46 @@ function EmptyState({
   onOpenSettings: () => void;
 }) {
   return (
-    <div className="h-full flex flex-col items-center justify-center p-6 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-alizen-accent to-alizen-accent2 flex items-center justify-center mb-4 shadow-glow">
-        <Sparkles size={28} className="text-white" />
+    <div className="h-full flex flex-col items-center justify-center px-6 py-8 text-center">
+      {/* Ambient glow behind icon */}
+      <div className="relative mb-5">
+        <div className="absolute inset-0 w-16 h-16 bg-alizen-accent/20 rounded-full blur-xl scale-150" />
+        <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-alizen-accent/20 to-alizen-accent/[0.05] border border-alizen-accent/20 flex items-center justify-center">
+          <Sparkles size={20} strokeWidth={1.5} className="text-alizen-accent" />
+        </div>
       </div>
-      <h2 className="text-xl font-bold mb-2">What do you want to build?</h2>
-      <p className="text-sm text-alizen-muted max-w-sm mb-6 leading-relaxed">
-        Describe an app in plain English. Alizen will write the code, live-preview it, and
-        give you a downloadable project you can deploy anywhere.
+
+      <h2 className="text-base font-semibold tracking-tight mb-1.5">
+        What do you want to build?
+      </h2>
+      <p className="text-[13px] text-alizen-muted max-w-xs mb-5 leading-relaxed">
+        Describe an app in plain English. Alizen writes the code, previews it live,
+        and gives you a downloadable project.
       </p>
+
       {!hasApiKey && (
-        <button onClick={onOpenSettings} className="btn-primary text-sm mb-5">
-          <Zap size={14} /> Add your API key to start
+        <button onClick={onOpenSettings} className="btn-primary text-xs h-8 px-4 mb-5">
+          Add your API key to start
         </button>
       )}
-      <div className="grid grid-cols-2 gap-2 w-full max-w-md">
+
+      <div className="grid grid-cols-2 gap-1.5 w-full max-w-sm">
         {SUGGESTIONS.map((s) => (
           <button
             key={s.label}
             onClick={() => hasApiKey && onPick(s.prompt)}
             disabled={!hasApiKey}
             className={cn(
-              'flex items-start gap-2 p-3 rounded-lg border border-alizen-border bg-alizen-surface/40 hover:bg-alizen-surface hover:border-alizen-accent/40 text-left transition-all text-xs',
-              !hasApiKey && 'opacity-50 cursor-not-allowed'
+              'flex items-start gap-2 p-2.5 rounded-lg border border-alizen-border bg-alizen-surface/30 text-left transition-all duration-100',
+              'hover:bg-alizen-surface/60 hover:border-white/[0.08]',
+              !hasApiKey && 'opacity-30 cursor-not-allowed'
             )}
           >
-            <FileCode size={14} className="mt-0.5 text-alizen-accent flex-shrink-0" />
+            <FileCode size={13} strokeWidth={1.5} className="mt-0.5 text-alizen-accent/60 flex-shrink-0" />
             <div>
-              <div className="font-semibold text-alizen-text">{s.label}</div>
-              <div className="text-alizen-muted text-[10px] mt-0.5 line-clamp-2">
-                {s.prompt.slice(0, 80)}…
+              <div className="text-xs font-medium text-alizen-dim">{s.label}</div>
+              <div className="text-2xs text-alizen-muted/50 mt-0.5 line-clamp-1">
+                {s.prompt.slice(0, 50)}…
               </div>
             </div>
           </button>
@@ -295,29 +309,34 @@ function EmptyState({
 function MessageBubble({
   msg,
   streaming,
+  index,
 }: {
   msg: { id: string; role: 'user' | 'assistant' | 'system'; content: string; createdAt?: number };
   streaming?: boolean;
+  index: number;
 }) {
   const isUser = msg.role === 'user';
   return (
-    <div className={cn('flex gap-3 animate-fade-in', isUser && 'flex-row-reverse')}>
+    <div
+      className={cn('flex gap-2.5 animate-fade-up', isUser && 'flex-row-reverse')}
+      style={{ animationDelay: `${Math.min(index * 20, 100)}ms` }}
+    >
       <div
         className={cn(
-          'w-7 h-7 rounded-md flex-shrink-0 flex items-center justify-center',
+          'w-6 h-6 rounded-md flex-shrink-0 flex items-center justify-center mt-0.5',
           isUser
-            ? 'bg-alizen-accent/20 text-alizen-accent'
-            : 'bg-gradient-to-br from-alizen-accent to-alizen-accent2 text-white'
+            ? 'bg-white/[0.06] text-alizen-subtle'
+            : 'bg-alizen-accent/10 text-alizen-accent'
         )}
       >
-        {isUser ? <User size={14} /> : <Bot size={14} />}
+        {isUser ? <User size={12} strokeWidth={1.5} /> : <Bot size={12} strokeWidth={1.5} />}
       </div>
       <div
         className={cn(
-          'max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed',
+          'max-w-[85%] rounded-lg px-3 py-2 text-[13px] leading-relaxed',
           isUser
-            ? 'bg-alizen-accent/15 text-alizen-text border border-alizen-accent/25'
-            : 'bg-alizen-surface text-alizen-text border border-alizen-border'
+            ? 'bg-white/[0.06] text-alizen-text border border-white/[0.06]'
+            : 'bg-alizen-surface/60 text-alizen-text border border-alizen-border/60'
         )}
       >
         <div

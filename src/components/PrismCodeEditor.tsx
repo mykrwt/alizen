@@ -18,11 +18,6 @@ interface Props {
   onChange: (v: string) => void;
 }
 
-/**
- * Lightweight syntax-highlighted editor using Prism + a transparent textarea.
- * No heavy dependencies like Monaco/CodeMirror — keeps bundle small and the
- * app fast. For a free, long-lived product this is the right tradeoff.
- */
 export function PrismCodeEditor({ value, language, onChange }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const preRef = useRef<HTMLPreElement>(null);
@@ -53,18 +48,23 @@ export function PrismCodeEditor({ value, language, onChange }: Props) {
   };
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-[#0d0d15] font-mono text-[13px]">
+    <div className="relative w-full h-full overflow-hidden bg-alizen-bg font-mono text-[12.5px]">
+      {/* Line numbers gutter */}
       <pre
         ref={preRef}
         aria-hidden="true"
         className={cn(
-          'absolute inset-0 m-0 p-4 overflow-auto pointer-events-none leading-[1.6]',
+          'absolute inset-0 m-0 p-0 overflow-auto pointer-events-none leading-[1.65]',
           `language-${language}`
         )}
         style={{ tabSize: 2 }}
       >
         <code
           className={`language-${language}`}
+          style={{
+            display: 'block',
+            padding: '12px 16px 12px 48px',
+          }}
           dangerouslySetInnerHTML={{ __html: highlighted + '\n' }}
         />
       </pre>
@@ -81,8 +81,8 @@ export function PrismCodeEditor({ value, language, onChange }: Props) {
         autoCapitalize="off"
         autoCorrect="off"
         autoComplete="off"
-        className="absolute inset-0 w-full h-full m-0 p-4 bg-transparent text-transparent caret-white resize-none outline-none font-mono leading-[1.6] selection:bg-alizen-accent/30 whitespace-pre overflow-auto"
-        style={{ tabSize: 2 }}
+        className="absolute inset-0 w-full h-full m-0 p-0 bg-transparent text-transparent caret-alizen-accent resize-none outline-none font-mono leading-[1.65] selection:bg-alizen-accent/20 whitespace-pre overflow-auto"
+        style={{ tabSize: 2, padding: '12px 16px 12px 48px' }}
       />
     </div>
   );

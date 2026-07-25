@@ -15,7 +15,7 @@ export function MobileTabs() {
   ];
 
   return (
-    <div className="md:hidden flex-shrink-0 flex border-t border-alizen-border bg-alizen-panel">
+    <div className="md:hidden flex-shrink-0 flex border-t border-alizen-border bg-alizen-panel/80 backdrop-blur-sm">
       {tabs.map((t) => {
         const active = view === t.id;
         const Icon = t.icon;
@@ -24,12 +24,15 @@ export function MobileTabs() {
             key={t.id}
             onClick={() => setView(t.id)}
             className={cn(
-              'flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-[10px] transition-colors',
-              active ? 'text-alizen-accent' : 'text-alizen-muted'
+              'flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-2xs transition-colors relative',
+              active ? 'text-alizen-text' : 'text-alizen-muted/50'
             )}
           >
-            <Icon size={18} />
-            {t.label}
+            {active && (
+              <div className="absolute top-0 left-1/4 right-1/4 h-px bg-alizen-accent" />
+            )}
+            <Icon size={16} strokeWidth={1.5} />
+            <span className="font-medium">{t.label}</span>
           </button>
         );
       })}

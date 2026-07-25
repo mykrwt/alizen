@@ -2,16 +2,16 @@ import Link from 'next/link';
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-alizen-bg text-alizen-text p-6 hero-gradient">
+    <div className="min-h-screen flex items-center justify-center bg-alizen-bg text-alizen-text p-6">
       <div className="text-center max-w-md">
-        <div className="text-6xl font-black bg-gradient-to-br from-alizen-accent to-alizen-accent2 bg-clip-text text-transparent mb-2">
+        <div className="text-5xl font-bold tracking-tight text-alizen-muted/20 mb-3">
           404
         </div>
-        <h1 className="text-xl font-bold mb-2">Page not found</h1>
-        <p className="text-sm text-alizen-muted mb-6">
-          That page does not exist — or it was never generated. Head back to the builder.
+        <h1 className="text-lg font-semibold tracking-tight mb-2">Page not found</h1>
+        <p className="text-[13px] text-alizen-muted mb-6 leading-relaxed">
+          That page doesn&apos;t exist — or was never generated.
         </p>
-        <Link href="/" className="btn-primary inline-flex">
+        <Link href="/" className="btn-primary text-xs h-8 px-4">
           Back to Alizen
         </Link>
       </div>
