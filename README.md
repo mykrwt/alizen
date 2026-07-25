@@ -1,76 +1,89 @@
-<div align="center">
 
-# Alize
+<p align="center">
+  <h1 align="center">
+    <span style="background: linear-gradient(135deg, #7c5cff, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Alizen</span>
+  </h1>
+  <p align="center"><strong>Build full-stack web apps with AI — free, forever.</strong></p>
+</p>
 
-### Describe it. Ship it.
-
-A **free, in-browser AI app builder**. Describe an app in chat — Alize builds a real **React + Vite** app live in your browser using **your own AI key**, shows it running instantly, and lets you refine, **download a ZIP**, or **push to GitHub**.
-
-**BYOK · Local-first · No login · No backend · No shutdown.** Hosted free on Vercel.
-
-</div>
+<p align="center">
+  <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-purple.svg" />
+  <img alt="Zero infrastructure" src="https://img.shields.io/badge/infrastructure-%240-green.svg" />
+  <img alt="Bring your own keys" src="https://img.shields.io/badge/BYOK-bring%20your%20own%20keys-blueviolet" />
+</p>
 
 ---
 
-## ✨ What it does
-1. Open the **builder** (no signup).
-2. Add your **AI provider key** (OpenAI / Anthropic / Gemini / Groq / OpenRouter / Ollama).
-3. **Describe** an app → the AI **writes files**, runs them in a live **WebContainer** preview, and **self-fixes** errors.
-4. **Refine by chatting**, then **Download ZIP** or **Push to GitHub**.
+## What is Alizen?
 
-Everything (projects, chats, files, keys) lives in your browser. GitHub is the optional durable "cloud."
+Alizen is a free, open-source AI app builder — think Vercel v0, Bolt.new, or Lovable, but built to run **indefinitely with zero recurring costs**.
 
-## 🚀 Quickstart
+**The core idea:** You bring your own API keys (OpenAI, Anthropic, Google, Groq, OpenRouter, any OpenAI-compatible endpoint). Alizen never pays for inference. Your data lives in your browser. Your projects are yours.
+
+## Why Alizen?
+
+| Feature | Alizen | Other AI builders |
+|---|---|---|
+| Cost to build | **$0** | Thousands/month |
+| Inference costs | **$0** (your keys) | Paid by platform, passed to you |
+| Data storage | **Your browser** | Their servers |
+| Vendor lock-in | **None** — download a runnable ZIP | Often locked to their platform |
+| Can it run forever? | **Yes** | Depends on funding/pricing changes |
+
+## How it works
+
+1. **Add your API key** (stored locally in your browser, never sent to our servers).
+2. **Describe your app** in plain English.
+3. Alizen streams AI responses directly from the provider to your browser — no middleman.
+4. **Preview live** in a sandboxed iframe as code is generated.
+5. **Iterate** with follow-up chat messages.
+6. **Export** a complete ZIP file you can run locally or deploy to Vercel/Netlify/Cloudflare with one click.
+
+## Tech stack (chosen for zero-cost, long-term sustainability)
+
+- **Next.js 14** (App Router) — hosted free on Vercel
+- **React + TypeScript + Tailwind** — premium UI, no paid UI kits
+- **Zustand + IndexedDB/localStorage** — all state lives in the user's browser
+- **Sandboxed iframe** for live preview — no cloud sandbox service required
+- **Direct browser-to-LLM streaming** — no proxy server paying for tokens
+- **JSZip** for export; no backend ZIP service
+- **Serverless functions** used only for non-essential metadata (optional)
+
+## Running locally
+
 ```bash
-corepack enable pnpm          # or: npm i -g pnpm
-pnpm install
-pnpm dev                      # http://localhost:3000
-```
-Then open **/settings** to add a provider key, and **/builder** to start building.
-
-## 🧱 Stack
-Next.js 15 · React 19 · TypeScript (strict) · Tailwind · shadcn-style UI · Zustand · **Vercel AI SDK** (BYOK) · **Dexie** (IndexedDB) · **@webcontainer/api** (live preview) · JSZip · Octokit · pnpm + Turborepo · Biome · Vitest · Playwright.
-
-## 📁 Project layout
-```
-apps/web            # the Alize builder (Next.js)
-  app/              # routes: landing, /builder, /settings (+ manifest, icon)
-  components/       # ui primitives, site-header, theme, builder UI
-  lib/              # types, db (Dexie), ai (providers/tools/chat), webcontainer, project, github, zip, keys
-  test/ · e2e/      # Vitest unit + Playwright smoke
-docs/               # product-spec, architecture, roadmap, byok, agent-tooling
-.mcp.json           # MCP servers for AI assistants
-AGENTS.md           # canonical agent rulebook
+npm install
+npm run dev
+# open http://localhost:3000
 ```
 
-## 📜 Docs
-- [`docs/product-spec.md`](docs/product-spec.md) — *what* to build (locked)
-- [`docs/architecture.md`](docs/architecture.md) — *how* it's built
-- [`docs/roadmap.md`](docs/roadmap.md) — milestones M0–M6
-- [`docs/byok.md`](docs/byok.md) — bring-your-own-key model & the Anthropic caveat
-- [`docs/agent-tooling.md`](docs/agent-tooling.md) — MCP servers, graphify memory, rules
+## Deploying
 
-## 🤖 Building Alize with an AI assistant
-This repo is pre-wired for AI coding agents:
-- **Memory:** graphify knowledge graph (run `graphify .` or `graphify update .`).
-- **MCP:** context7 (docs), playwright (preview), sequential-thinking, magic, github — see `.mcp.json`.
-- **Rules:** `AGENTS.md` (canonical) mirrored to `CLAUDE.md`, `.cursor/rules/`, `.windsurfrules`.
-- **Primary assistant:** Claude Code. Status is **🟢 SPEC READY** — see the roadmap for build order.
+Click to deploy your own instance to Vercel (free):
 
-## 🛠️ Commands
-| Command | What it does |
-|---|---|
-| `pnpm dev` | Start the builder on :3000 |
-| `pnpm build` | Production build |
-| `pnpm typecheck` | `tsc --noEmit` across the workspace |
-| `pnpm lint` | Biome check |
-| `pnpm test` | Vitest unit tests |
-| `pnpm test:e2e` | Playwright smoke tests (starts dev server) |
-| `graphify update .` | Refresh the codebase memory graph (free, AST-only) |
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/mykrwt/alizen)
 
-## ⚙️ Notes
-- **WebContainers** require cross-origin isolation → COOP/COEP headers are set in `vercel.json` + `next.config.ts`.
-- **No `.env` needed** — keys/tokens are entered in-app (Settings) and stored in the browser.
+No environment variables required. No database. No paid services. Deploy once, run forever.
 
-## 📄 License
-MIT.
+## Philosophy
+
+> "Can this platform continue working indefinitely without costing the owner money?"
+
+Every technical decision answers this question. We avoid:
+
+- Managed databases (Supabase, Firebase, Neon, PlanetScale, MongoDB Atlas)
+- Paid APIs or freemium services that can expire
+- Cloud sandboxes that bill per second
+- Authentication providers with per-seat costs
+
+We prefer:
+
+- User-owned data (local storage, browser)
+- User-supplied credentials (BYOK)
+- Static hosting + serverless functions
+- Open standards (OpenAI-compatible APIs work everywhere)
+- Exportable, portable artifacts (plain HTML/JS/CSS/React projects you own)
+
+## License
+
+MIT — use it, fork it, build your own. Free forever.
