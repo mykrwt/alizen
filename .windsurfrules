@@ -1,0 +1,5 @@
+# Alize — Windsurf rules (mirror of AGENTS.md; see AGENTS.md for full detail)
+# Status: PLANNING. Don't implement product features until AGENTS.md Decisions Log is filled. Ask when unsure.
+# Hard constraints: C1 frontend-only on Vercel · C2 BYOK · C3 local-first (IndexedDB/Dexie) · C4 prompt→app · C5 web/PWA · C6 scaffold-first.
+# Provisional stack: Next.js 15, React 19, TS strict, Tailwind, shadcn/ui, Zustand, Vercel AI SDK, Dexie, pnpm+Turborepo, Biome, Vitest, Playwright.
+# Agent rules: memory first (graphify query before grep; graphify update . after edits); strict TS; use context7 MCP for docs; commits only on arena/019f976c-alize; run pnpm typecheck && lint && test before done.
