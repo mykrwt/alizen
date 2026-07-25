@@ -1,0 +1,33 @@
+# GitHub Actions CI for Alize.
+#
+# NOTE: the automated token used for this scaffold's push does NOT have the
+# `workflows` permission, so this file is stored as a template instead of under
+# .github/workflows/. To ENABLE CI, move it into place with a token/role that
+# has the workflows scope:
+#
+#   mkdir -p .github/workflows && git mv docs/ci.yml .github/workflows/ci.yml && git commit -m "ci: enable workflow" && git push
+#
+name: CI
+
+on:
+  push:
+    branches: [main, "arena/**"]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm build

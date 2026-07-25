@@ -23,7 +23,7 @@ export function SiteHeader() {
             <Link href="/builder">Builder</Link>
           </Button>
           <Button asChild variant="ghost" size="icon" aria-label="GitHub">
-            <a href="https://github.com/mykrwt/alize" target="_blank" rel="noreferrer">
+            <a href="https://github.com/mykrwt/alizen" target="_blank" rel="noreferrer">
               <Github className="h-4 w-4" />
             </a>
           </Button>
