@@ -69,28 +69,30 @@ This repo is pre-wired for AI coding agents:
 | `graphify update .` | Refresh the codebase memory graph (free, AST-only) |
 
 ## ▲ Deploying to Vercel
-This is a **pnpm + Turborepo monorepo**; the deployable app is `apps/web`. Vercel must be told
-where the Next.js output lives or it falls back to looking for a static `public/` directory and
-fails with `No Output Directory named "public" found after the Build completed`.
+The deployable app is `apps/web`. **You must set the Root Directory — there is no config-file
+substitute.** Vercel's Next.js builder looks for `next` in the `package.json` of whatever
+directory it treats as the root, and the repo root `package.json` only has turbo/biome/typescript.
 
-**Recommended (Vercel Project → Settings → Build & Deployment):**
+**Vercel Project → Settings → Build & Deployment:**
 
 | Setting | Value |
 |---|---|
-| Framework Preset | Next.js |
-| **Root Directory** | `apps/web` |
-| Include files outside the Root Directory | ✅ enabled (needed for the workspace root + lockfile) |
-| Build Command | leave default (`next build`), or `cd ../.. && pnpm turbo run build --filter=web` |
+| **Root Directory** | **`apps/web`** ← the one setting that matters |
+| Framework Preset | Next.js (auto-detected once Root Directory is set) |
+| Build Command | leave default (`next build`) |
 | Output Directory | leave default (`.next`) |
-| Install Command | leave default (Vercel detects pnpm) |
+| Install Command | leave default (Vercel detects pnpm and installs the whole workspace) |
 
-With Root Directory set to `apps/web`, Vercel reads `apps/web/vercel.json` and the root
-`vercel.json` is ignored — both files carry the same COOP/COEP headers so the config is
-identical either way.
+Vercel then reads `apps/web/vercel.json` for the COOP/COEP headers; the root `vercel.json` is
+ignored. Both files carry the same headers, so isolation holds either way.
 
-**Fallback (Root Directory left at the repo root):** the root `vercel.json` pins
-`framework: nextjs`, the Turborepo build command, and `outputDirectory: apps/web/.next` so the
-build is discoverable from the root. Setting the Root Directory is still the more reliable path.
+Two failure modes if the Root Directory is wrong, both seen on this repo:
+- Root left at repo root, no `framework` set → `No Output Directory named "public" found`
+  (Vercel falls back to static-site defaults and never looks in `apps/web/.next`).
+- Root left at repo root with `"framework": "nextjs"` in the root `vercel.json` →
+  `No Next.js version detected` (the Next.js builder runs at the root, where `next` isn't a
+  dependency). Setting `outputDirectory` does not help; the builder resolves `next` before it
+  ever looks at the output path.
 
 ## ⚙️ Notes
 - **WebContainers** require cross-origin isolation → COOP/COEP headers are set in `vercel.json`, `apps/web/vercel.json`, and `next.config.ts`.
